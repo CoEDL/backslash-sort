@@ -1,6 +1,9 @@
-# python3
+#!/usr/bin/env python3
 """
 Copyright Ben Foley 2021
+
+Usage:
+python sort.py -k lx -i bilinarra_lex.txt -o bilinarra_lex_output.txt
 
 Uses NLTK to read SFM backslash dictionary data, convert to XML,
 then sort on the lx value of the record elements.
@@ -19,6 +22,18 @@ Saves the result as a new SFM file.
             <gp>nek i pas</gp>
         </record>
         ...
+
+TODO: sort by custom alphabet
+
+Gurindji
+a, i, j, k, l, m, n, ng, ny, p, r, rl, rn, rt, rr, t, u, y
+
+Bilinarra
+a, b, d, g, i, j, l, m, n, ng, ny, r, rd, rl, rn, rr, u, y
+
+Mudburra
+a, b, d, i, j, k, l, m, n, ng, ny, r, rd, rl, rn, rr, u, y
+
 """
 
 import argparse
@@ -47,8 +62,8 @@ def save_lexicon(lexicon, records, output_filename):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument("-k", "--key", help='backslash code for key (lx)', default='lx')
-    ap.add_argument("-i", "--input_filename", help='input filename, include path', default='bilinarra_lex.txt')
-    ap.add_argument("-o", "--output_filename", help='Output filename, exclude path', default='bilinarra_lex_output.txt')
+    ap.add_argument("-i", "--input_filename", help='input filename, include path', default='input.txt')
+    ap.add_argument("-o", "--output_filename", help='Output filename, exclude path', default='output.txt')
     opts = ap.parse_args()
 
     # Get dictionary data using nltk's toolbox parser (to save writing our own parser)
@@ -57,5 +72,6 @@ if __name__ == '__main__':
     # Sort the records based on the child lx text
     records = sorted(lexicon.findall('record'), key=lambda child: get_key(child))
 
+    # Build a new XML file and convert to SFM using NLTK
     save_lexicon(lexicon=lexicon, records=records, output_filename=opts.output_filename)
     print("done")
