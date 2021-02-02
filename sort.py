@@ -3,16 +3,20 @@
 Copyright Ben Foley 2021
 
 Usage:
-python sort.py -a alphabet.txt s-i bilinarra_lex.txt -o bilinarra_lex_output.txt -d True -k lx
+python sort.py -a alphabet.txt s-i dictionary.txt -o dictionary-sorted.txt -d True -k lx
 
-This script uses NLTK to read SFM backslash dictionary data (converts to XML format),
-sorts on the lx value of the record elements,
+This script uses NLTK to read standard format markers (SFM) backslash dictionary data.
+The NLTK parser converts the SFM data is converts to XML format),
+sorts on the lx value of the record elements according to a custom alphabet,
 and saves the result as a new SFM file.
 
-Can sort on a custom alphabet specified in comma-sep format from an external text file, eg:
+
+Specify a custom alphabet in a comma-separated format in an external file.
+Note that the alphabet file must include all letters that appear in the headwords.
+The script will fail with a message if letters are missing from the alphabet.
+Sample format, eg:
 a, i, j, k, l, m, n, ng, ny, p, r, rl, rn, rt, rr, t, u, y
 
-Note that the alphabet file must include all letters that appear in the headwords.
 
 The input lexicon should be in standard toolbox-style format, eg:
 \lx anyan
@@ -21,7 +25,8 @@ The input lexicon should be in standard toolbox-style format, eg:
 \lx bada
 \ge ground
 
-The XML format NLTK uses is like this:
+
+FYI, the XML format NLTK uses is like this:
  <toolbox_data>
         <header>
             <_sh>v3.0  400  Rotokas Dictionary</_sh>
@@ -38,7 +43,28 @@ The XML format NLTK uses is like this:
 
 import argparse
 from nltk import toolbox
-from xml.etree.ElementTree import Element, tostring
+from xml.etree.ElementTree import Element
+
+
+def test_alphabet(check_alphabet, check_records):
+    """
+    Make a list of unique characters in the headwords
+    Check if all letters are covered in the alphabet
+    Can't really deal with digraphs though :-(
+    """
+    headwords = [record[0].text for record in check_records]
+    characters = ''.join(headwords)
+    characters_unique = list(set(characters))
+    characters_unique.sort()
+    missing_characters = []
+    for character in characters_unique:
+        if character not in check_alphabet:
+            missing_characters.append(character)
+    if len(missing_characters) > 0:
+        missing_characters.sort()
+        this_them = "this" if len(missing_characters) == 1 else "them"
+        print(f"Alphabet is missing {', '.join(missing_characters)}. Add {this_them} to the alphabet and try again.")
+        raise ValueError
 
 
 def get_key(node, ignore_dashes):
@@ -75,9 +101,9 @@ def save_lexicon(old_lexicon, new_records, output_filename):
 if __name__ == '__main__':
     # Get script arguments
     ap = argparse.ArgumentParser()
-    ap.add_argument("-a", "--alphabet_filename", help='Filename of alphabet for sorting', default='gurindji_alphabet.txt')
-    ap.add_argument("-i", "--input_filename", help='Input filename', default='gurindji_lex.txt')
-    ap.add_argument("-o", "--output_filename", help='Output filename', default='gurindji_output.txt')
+    ap.add_argument("-a", "--alphabet_filename", help='Filename of alphabet for sorting', default='alphabet.txt')
+    ap.add_argument("-i", "--input_filename", help='Input filename', default='dictionary.txt')
+    ap.add_argument("-o", "--output_filename", help='Output filename', default='dictionary-sorted.txt')
     ap.add_argument("-d", "--ignore_dashes", help='Does sort ignore hyphens?', default=True)
     ap.add_argument("-k", "--key", help='Backslash code for headword', default='lx')
     opts = ap.parse_args()
@@ -93,13 +119,24 @@ if __name__ == '__main__':
 
     # Sort the records using custom alphabet
     alphabet = [x.strip() for x in alphabet_raw.split(',')]
-    # Include hyphen even if we aren't sorting on hyphen as a character,
-    # otherwise sorted will fail later on.
-    alphabet.extend(['-', '.', ' '])
+    # Seems to need space character. Let's add that for convenience
+    alphabet.append(' ')
+    # If we are ignoring dashes, let's automatically add one to the alphabet for convenience.
+    # Doesn't matter which end of the list because it will be ignored.
+    if opts.ignore_dashes is True:
+        alphabet.append('-')
 
     # Get the record elements that are in the parsed data
     records = lexicon.findall('record')
     print(f"Found {len(records)} records")
+
+    # Check that the alphabet covers all the single letters in the headwords. Digraphs?
+    try:
+        test_alphabet(check_alphabet=alphabet, check_records=records)
+    except ValueError:
+        print("Sorting failed")
+        quit()
+
     # Make a dict like {a:0, b:1, c:2} from the alphabet list for the sort ordering
     order = {letter: index for index, letter in enumerate(alphabet)}
     # Do the sorting
