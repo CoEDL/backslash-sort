@@ -1,20 +1,17 @@
 \_sh v3.0  400  MDF 4.0
 \_DateStampHasFourDigitYear
 
-\lx mangoyyy
-\sf 5
+\lx jeruk
+\ge orange
 
-\lx jjjj
-\sf 4
+\lx mangis
+\ge mangosteen
 
-\lx aiiii
-\sf 2
-\re oh dear
+\lx buah mangga
+\ge mango
 
-\lx -kkk
-\sf 3
-\ge cute
+\lx pisang
+\ge banana
 
-\lx aaa
-\sf 1
-\ge very cute
+\lx apel
+\ge apple
