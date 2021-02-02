@@ -46,7 +46,7 @@ from nltk import toolbox
 from xml.etree.ElementTree import Element
 
 
-def test_alphabet(check_alphabet, check_records):
+def test_alphabet(check_alphabet: list[str], check_records: list[Element]):
     """
     Make a list of unique characters in the headwords
     Check if all letters are covered in the alphabet
@@ -67,7 +67,7 @@ def test_alphabet(check_alphabet, check_records):
         raise ValueError
 
 
-def get_key(node, ignore_dashes):
+def get_key(node: Element, ignore_dashes: bool):
     """
     Get the text of a backslash entry from the first node.
     Strip off leading hyphens if sorting should ignore hyphens.
@@ -79,7 +79,7 @@ def get_key(node, ignore_dashes):
         return node[0].text.lower()
 
 
-def save_lexicon(old_lexicon, new_records, output_filename):
+def save_lexicon(old_lexicon: Element, new_records: list[Element], output_filename: str):
     """
     Build a new standard format marker (SFM) file using the header from the input file,
     and the newly sorted records.
