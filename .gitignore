@@ -2,4 +2,7 @@ venv
 *.txt
 .DS_Store
 .idea
-.zip
+*.zip
+
+!input.txt
+!alphabet.txt

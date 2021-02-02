@@ -1,0 +1,20 @@
+\_sh v3.0  400  MDF 4.0
+\_DateStampHasFourDigitYear
+
+\lx mangoyyy
+\sf 5
+
+\lx jjjj
+\sf 4
+
+\lx aiiii
+\sf 2
+\re oh dear
+
+\lx -kkk
+\sf 3
+\ge cute
+
+\lx aaa
+\sf 1
+\ge very cute
